@@ -31,38 +31,30 @@ let instance = null;
 document
   .querySelector(".gallery")
   .insertAdjacentHTML("afterbegin", createDivWithImg.join(""));
-document.querySelector(".gallery").addEventListener("click", function (e) {
+
+const openGallary = function (e) {
   e.preventDefault();
+
   let imgGallery = e.target.getAttribute("data-source");
   instance = basicLightbox.create(
-    `
-    <img src="${imgGallery}" width="800" height="600">
-`
+    `<img src="${imgGallery}" width="800" height="600">`,
+    {
+      onClose: (instance) => {
+        document.removeEventListener("keydown", closeImg);
+      },
+    }
   );
   instance.show();
-  // document.addEventListener("keydown", (event) => {
-  //   // if (!instance && !instance.visible()) return false;
-  //   if (event.code === "Escape") {
-  //     instance.close();
-  //   }
-  // });
-  console.log(instance.show());
-  if (instance.show() === false) {
-    document.removeEventListener("keydown", closeImg);
-  }
-  document.addEventListener("keydown", closeImg);
-  function closeImg() {
+  const closeImg = function (event) {
     if (event.code === "Escape") {
-      instance.close();
+      instance.close(() => document.removeEventListener("keydown", closeImg));
     }
-  }
+  };
   console.log(instance.show());
-});
 
-// const instance = basicLightbox.create(
-//   event.preventDefault();
-//     `<img src="assets/images/image.png" width="800" height="600">`
-// );
+  // document.removeEventListener("keydown", closeImg);
 
-// instance.show();
-// console.log(galleryItems);
+  document.addEventListener("keydown", closeImg);
+  // document.removeEventListener("keydown", closeImg);
+};
+document.querySelector(".gallery").addEventListener("click", openGallary);
